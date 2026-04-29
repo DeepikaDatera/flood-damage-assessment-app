@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+
+@theme {
+    --color-bgBlue: #0a1628;
+    --color-subTitleClr: #7da3c0;
+    --color-buttonClr: #00d4ff;
+    --color-menuSelectedClr: #00d4ff18;
+    --color-fieldClr: #162d52;
+    --color-inputClr: #e8f4f8;
+    --color-redBorderClr: #ef476f44;
+    --color-redTextClr: #fb2c5d;
+    --color-greenBorderClr: #06d6a044;
+    --color-greenTextClr: #1bffc4;
+    --color-yellowBorderClr: #ffd16644;
+    --color-yellowTextClr: #ffcb51;
+}
