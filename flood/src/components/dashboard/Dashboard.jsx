@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { getAssessments } from "../server/assessment";
-import ParagraphText from "../components/ui/ParagraphText";
-import ParagraphBoldText from "../components/ui/ParagraphBoldText";
-import PageTitle from "../components/ui/PageTitle";
-import AssessmentPieChart from "../components/dashboard/AssessmentPieChart";
-import { Skeleton } from "antd";
-import InfoIcon from "../assets/svg/InfoIcon";
+import { getAssessments } from "../../server/assessment";
+import ParagraphText from "../../components/ui/ParagraphText";
+import ParagraphBoldText from "../../components/ui/ParagraphBoldText";
+import AssessmentPieChart from "./AssessmentPieChart";
+import InfoIcon from "../../assets/svg/InfoIcon";
+import RecentActivity from "./RecentActivity";
+import CustomSkeleton from "../ui/CustomSkeleton";
 
 const StatusCard = ({ title, count, color }) => {
     return (
@@ -16,50 +16,33 @@ const StatusCard = ({ title, count, color }) => {
     )
 }
 
-const RecentActivityCard = ({ farmName, address, farmCondition, date }) => {
-    return (
-        <div className={`flex w-full justify-between bg-fieldClr  p-4 border-s-2 ${farmCondition === "Good" ? "border-s-greenTextClr" : farmCondition === "Moderate" ? "border-s-yellowTextClr" : "border-s-redTextClr"} `}>
-            <div>
-                <div className="text-xs font-bold text-inputClr mb-2">{farmName}</div>
-                <div className="text-xs text-subTitleClr" >{address}</div>
-            </div>
-            <div className="flex flex-col items-end gap-1">
-                <div className={` ${farmCondition === "Good" ? "bg-greenBorderClr border border-greenBorderClr text-greenTextClr" : farmCondition === "Moderate" ? "bg-yellowBorderClr border border-yellowBorderClr text-yellowTextClr" : "bg-redBorderClr border border-redBorderClr text-redTextClr"} rounded-md py-1 px-2 text-xs font-semibold`}>{farmCondition}</div>
-                <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-subTitleClr">{new Date(date ?? null).toLocaleDateString()}</span>
-                </div>
-            </div>
-
-        </div>
-    )
-}
-
-export default function Dashboard() {
+export default function Dashboard({ status }) {
     const [isLoading, setIsLoading] = useState(false);
     const [assessments, setAssessments] = useState();
     const isOnline = navigator.onLine;
+
     useEffect(() => {
         const getAllAssessments = async () => {
             setIsLoading(true);
             try {
-                const data = await getAssessments();
-                console.log("Fetched assessments:", data);
+                const data = await getAssessments(status);
                 setAssessments(data?.data);
             } catch (error) {
                 console.error("Error fetching assessments:", error);
             } finally {
-                setIsLoading(false);
+                setIsLoading(false); // ✅ always runs
             }
+        };
+        if (navigator.onLine) {
+            getAllAssessments();
         }
-        getAllAssessments()
-    }, [])
+    }, []);
 
     return (
         <>
-            <PageTitle title={"Assessment Dashboard"} subtitle={new Date().toDateString()} />
             {
-                isOnline ? <Skeleton active loading={isLoading} paragraph={{ rows: 5 }} >
-                    <div className="p-4">
+                isOnline ? <CustomSkeleton isLoading={isLoading}>
+                    <div className="py-4">
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             <StatusCard title={"Count"} count={assessments?.counts?.total ?? 0} />
                             <StatusCard title={"Good"} count={assessments?.counts?.good ?? 0} color={"text-greenTextClr!"} />
@@ -68,24 +51,16 @@ export default function Dashboard() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 py-4 gap-4">
                             <div className="col-span-1 flex flex-col gap-4">
-                                {
-                                    assessments?.recentAssessments?.map((assessment, index) => (
-                                        <RecentActivityCard
-                                            key={index}
-                                            farmName={assessment.farmName}
-                                            address={assessment.address}
-                                            farmCondition={assessment.farmCondition}
-                                            date={assessment.createdAt}
-                                        />
-                                    ))
-                                }
+                                <ParagraphText>Recent Assessments</ParagraphText>
+                                <RecentActivity status={status} assessmentData={assessments?.recentAssessments} />
                             </div>
-                            <div className="col-span-1">
+                            <div className="col-span-1 flex flex-col gap-4">
+                                <ParagraphText>Site Map</ParagraphText>
                                 <AssessmentPieChart counts={assessments?.counts} />
                             </div>
                         </div>
                     </div>
-                </Skeleton> :
+                </CustomSkeleton> :
                     <div className="p-4 flex justify-center items-center mt-24">
                         <div className="w-full max-w-175 flex items-start gap-3 bg-fieldClr border border-gray-700 rounded-lg p-4">
 
@@ -105,7 +80,6 @@ export default function Dashboard() {
                         </div>
                     </div>
             }
-
         </>
     )
 }

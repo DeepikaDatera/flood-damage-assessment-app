@@ -25,7 +25,7 @@ const UploadImage = ({ setAssessmentData, fileList, setFileList }) => {
     };
 
     const handleChange = ({ fileList: newFileList }) => {
-        const updatedList = newFileList.map(file => {
+        const updatedList = newFileList.map((file) => {
             if (file.originFileObj && !file.preview) {
                 file.preview = URL.createObjectURL(file.originFileObj);
             }
@@ -33,13 +33,20 @@ const UploadImage = ({ setAssessmentData, fileList, setFileList }) => {
         });
 
         setFileList(updatedList);
-
-        setAssessmentData(prev => ({
+        setAssessmentData((prev) => ({
             ...prev,
-            images: updatedList
-                .map(file => file.originFileObj)
-                .filter(Boolean),
+            images: updatedList.map((file) => file.originFileObj).filter(Boolean),
         }));
+    };
+
+    const handleRemove = (file) => {
+        const updated = fileList.filter((f) => f.uid !== file.uid);
+        setFileList(updated);
+        setAssessmentData((prev) => ({
+            ...prev,
+            images: updated.map((f) => f.originFileObj).filter(Boolean),
+        }));
+        return false;
     };
 
     return (
@@ -60,13 +67,18 @@ const UploadImage = ({ setAssessmentData, fileList, setFileList }) => {
                     Click or drag images to upload
                 </p>
             </Dragger>
+
             {fileList.length > 0 && (
                 <div className="flex flex-col gap-2 mt-3">
                     {fileList.map((file) => {
-                        const src = file.url || file.thumbUrl ||
+                        const src =
+                            file.url ||
+                            file.thumbUrl ||
                             (file.originFileObj
                                 ? URL.createObjectURL(file.originFileObj)
                                 : null);
+
+                        const isExisting = !file.originFileObj && file.url;
 
                         return (
                             <div
@@ -77,28 +89,26 @@ const UploadImage = ({ setAssessmentData, fileList, setFileList }) => {
                                     <img
                                         src={src}
                                         alt={file.name}
-                                        className="w-10 h-10 object-cover rounded-md flex-shrink-0"
+                                        className="w-10 h-10 object-cover rounded-md shrink-0"
                                     />
                                 )}
-                                <span
-                                    className="flex-1 text-sm text-inputClr truncate cursor-pointer"
-                                    onClick={() => handlePreview(file)}
-                                >
-                                    {file.name}
-                                </span>
+                                <div className="flex-1 min-w-0">
+                                    <span
+                                        className="text-sm text-inputClr truncate cursor-pointer block"
+                                        onClick={() => handlePreview(file)}
+                                    >
+                                        {file.name}
+                                    </span>
+                                    {isExisting && (
+                                        <span className="text-[10px] text-[#5a7fa0]">
+                                            Existing photo
+                                        </span>
+                                    )}
+                                </div>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        const updated = fileList.filter(f => f.uid !== file.uid);
-                                        setFileList(updated);
-                                        setAssessmentData((prev) => ({
-                                            ...prev,
-                                            images: updated
-                                                .map(f => f.originFileObj)
-                                                .filter(Boolean),
-                                        }));
-                                    }}
-                                    className="text-red-400 hover:text-red-500 text-xs flex-shrink-0"
+                                    onClick={() => handleRemove(file)}
+                                    className="text-red-400 hover:text-red-500 text-xs shrink-0"
                                 >
                                     ✕
                                 </button>
@@ -107,6 +117,7 @@ const UploadImage = ({ setAssessmentData, fileList, setFileList }) => {
                     })}
                 </div>
             )}
+
             {previewImage && (
                 <Image
                     preview={{

@@ -14,7 +14,7 @@ export const syncPendingAssessments = async () => {
             formData.append('totalChicken', assessment.totalChicken);
             formData.append('farmName', assessment.farmName);
             formData.append('notes', assessment.notes);
-            formData.append('assessorName', assessment.assessorName);
+            formData.append('assessorEmail', assessment.assessorEmail);
             formData.append('lat', assessment.lat);
             formData.append('lng', assessment.lng);
             const photos = await getPhotosByLocalId(assessment.localId);
@@ -23,7 +23,6 @@ export const syncPendingAssessments = async () => {
             })
 
             const res = await createAssessment({ body: formData });
-            console.log('Sync response:', res);
             if (res.success) {
                 await deleteAssessment(assessment.localId);
             }

@@ -38,7 +38,8 @@ const MobileHeader = () => {
                     }
                 }
             }}>
-                <Drawer placement="left" onClose={showDrawer} open={openDrawer} className='bg-amber-200' size='default' bodyStyle={{ padding: 0 }}
+                <Drawer placement="left" onClose={showDrawer} open={openDrawer} className='bg-amber-200' size='default'
+                    styles={{ body: { padding: 0 } }}
                     closeIcon={<span style={{ color: "#fff", fontSize: "18px" }}>✕</span>}
                 >
                     <Sidebar setOpenDrawer={setOpenDrawer} />

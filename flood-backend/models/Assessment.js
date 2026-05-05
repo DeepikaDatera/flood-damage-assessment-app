@@ -16,7 +16,7 @@ const assessmentSchema = new mongoose.Schema({
     totalChicken: { type: Number, required: true },
     firmPhotos: [photoSchema],
     notes: { type: String },
-    assessorName: { type: String, required: true },
+    assessorEmail: { type: String, required: true },
 }, { timestamps: true });
 
 const Assessment = mongoose.model('Assessment', assessmentSchema);
